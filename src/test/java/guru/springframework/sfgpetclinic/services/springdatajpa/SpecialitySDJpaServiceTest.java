@@ -9,8 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SpecialitySDJpaServiceTest {
@@ -43,6 +42,31 @@ class SpecialitySDJpaServiceTest {
         service.deleteById(1L);
 
         verify(specialtyRepository, times(2)).deleteById(1L);
+    }
+
+    // Other ways to handle multiple mock verifications
+    @Test
+    void testDeleteById_AtLeastOnce() {
+        service.deleteById(1L);
+        service.deleteById(1L);
+
+        verify(specialtyRepository, atLeastOnce()).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteById_atMostFiveTimes() {
+        service.deleteById(1L);
+        service.deleteById(1L);
+
+        verify(specialtyRepository, atMost(5)).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteById_Never() {
+        service.deleteById(1L);
+        service.deleteById(1L);
+
+        verify(specialtyRepository, never()).deleteById(5L);    // Verify it doesn't ever get called with given argument
     }
 
     @Test

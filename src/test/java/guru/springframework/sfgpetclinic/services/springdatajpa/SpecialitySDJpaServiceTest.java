@@ -8,7 +8,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,56 +25,104 @@ class SpecialitySDJpaServiceTest {
     SpecialitySDJpaService service;
 
     @Test
+    void testDeleteByObject() {
+        // given
+        Speciality speciality = new Speciality();
+
+        // when
+        service.delete(speciality);
+
+        // then
+        then(specialtyRepository).should().delete(any(Speciality.class));
+    }
+
+    @Test
+    void findByIdTest() {
+        // given
+        Speciality speciality = new Speciality();
+        given(specialtyRepository.findById(1L)).willReturn(Optional.of(speciality));
+
+        // when
+        Speciality foundSpecialty = service.findById(1L);
+
+        // then
+        assertThat(foundSpecialty).isNotNull();
+        then(specialtyRepository).should(times(1)).findById(anyLong());
+        then(specialtyRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
     void testDeleteById_SingleInvocationSuccess() {
+        //given - none
+
+        //when
         service.deleteById(1L);
 
+        //then
+        then(specialtyRepository).should().deleteById(1L );
         verify(specialtyRepository).deleteById(1L);
     }
 
     @Test
     void testDeleteById_DoubleInvocationFailure() {
+        //given - none
+
+        //when
         service.deleteById(1L);
         service.deleteById(1L);
 
-        verify(specialtyRepository).deleteById(1L);     // Mockito defaults to one call only.
+        //then
+        then(specialtyRepository).should(atLeastOnce()).deleteById(1L);     // Mockito defaults to one call only.
                                                         // If you want more, you need to be explicit as shown below.
     }
 
     @Test
     void testDeleteById_DoubleInvocationSuccess() {
+        //when
         service.deleteById(1L);
         service.deleteById(1L);
 
-        verify(specialtyRepository, times(2)).deleteById(1L);
+        //then
+        then(specialtyRepository).should(times(2)).deleteById(1L);
     }
 
     // Other ways to handle multiple mock verifications
     @Test
     void testDeleteById_AtLeastOnce() {
+        //when
         service.deleteById(1L);
         service.deleteById(1L);
 
-        verify(specialtyRepository, atLeastOnce()).deleteById(1L);
+        //then
+        then(specialtyRepository).should(atLeastOnce()).deleteById(1L);
     }
 
     @Test
     void testDeleteById_atMostFiveTimes() {
+        //when
         service.deleteById(1L);
         service.deleteById(1L);
 
-        verify(specialtyRepository, atMost(5)).deleteById(1L);
+        //then
+        then(specialtyRepository).should(atMost(5)).deleteById(1L);
     }
 
     @Test
     void testDeleteById_Never() {
+        //when
         service.deleteById(1L);
         service.deleteById(1L);
 
-        verify(specialtyRepository, never()).deleteById(5L);    // Verify it doesn't ever get called with given argument
+        //then
+        then(specialtyRepository).should(never()).deleteById(5L);    // Verify it doesn't ever get called with given argument
     }
 
     @Test
     void testDelete() {
+        //when
         service.delete(new Speciality());
+
+        //then
+        then(specialtyRepository).should().delete(any());
     }
 }

@@ -18,9 +18,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,6 +35,9 @@ class OwnerControllerTest {
 
     @Mock
     BindingResult result;
+
+    @Mock
+    Model model;
 
     @InjectMocks
     OwnerController controller;
@@ -95,13 +99,18 @@ class OwnerControllerTest {
     void processFindFormWildCard_multipleOwners() {
         //given
         Owner owner = new Owner(14L, "cillian", "murphy");
+        InOrder inOrder = inOrder(service, model);
 
         //when
-        String view = controller.processFindForm(owner, result, Mockito.mock(Model.class));
+        String view = controller.processFindForm(owner, result, model);
 
         //then
         assertThat("owners/ownersList").isEqualToIgnoringCase(view);
         assertThat("%murphy%").isEqualToIgnoringCase(stringArgumentCaptor.getValue());
+
+        // inOrder asserts
+        inOrder.verify(service).findAllByLastNameLike(anyString());
+        inOrder.verify(model).addAttribute(anyString(), anyList());
     }
 
 }
